@@ -1,0 +1,1 @@
+# tf-azurerm-module_primitive-monitor_autoscale_setting
