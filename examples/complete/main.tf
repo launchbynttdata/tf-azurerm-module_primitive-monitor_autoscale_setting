@@ -49,21 +49,6 @@ resource "azurerm_service_plan" "app_service_plan" {
   depends_on = [module.resource_group]
 }
 
-locals {
-  # Inject the App Service Plan ID as the metric_resource_id for any rules where it is not explicitly set
-  resolved_profiles = [
-    for p in var.profiles : merge(p, {
-      rules = p.rules == null ? null : [
-        for r in p.rules : merge(r, {
-          metric_trigger = merge(r.metric_trigger, {
-            metric_resource_id = coalesce(r.metric_trigger.metric_resource_id, azurerm_service_plan.app_service_plan.id)
-          })
-        })
-      ]
-    })
-  ]
-}
-
 module "monitor_autoscale_setting" {
   source = "../.."
 
@@ -72,10 +57,8 @@ module "monitor_autoscale_setting" {
   location            = var.location
   target_resource_id  = azurerm_service_plan.app_service_plan.id
   enabled             = var.enabled
-  profiles            = local.resolved_profiles
+  profiles            = var.profiles
   notification        = var.notification
   predictive          = var.predictive
   tags                = merge(var.tags, { resource_name = module.resource_names["monitor_autoscale_setting"].standard })
-
-  depends_on = [module.resource_group, azurerm_service_plan.app_service_plan]
 }

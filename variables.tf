@@ -85,7 +85,7 @@ variable "profiles" {
     rules = optional(list(object({
       metric_trigger = object({
         metric_name              = string
-        metric_resource_id       = string
+        metric_resource_id       = optional(string)
         operator                 = string
         statistic                = string
         time_aggregation         = string
@@ -124,6 +124,76 @@ variable "profiles" {
     condition     = length(var.profiles) >= 1 && length(var.profiles) <= 20
     error_message = "At least one profile is required and a maximum of 20 profiles are allowed."
   }
+
+  validation {
+    condition = alltrue([
+      for p in var.profiles :
+      p.capacity.minimum >= 0 && p.capacity.minimum <= 1000 &&
+      p.capacity.maximum >= 0 && p.capacity.maximum <= 1000 &&
+      p.capacity.default >= 0 && p.capacity.default <= 1000 &&
+      p.capacity.minimum <= p.capacity.default &&
+      p.capacity.default <= p.capacity.maximum
+    ])
+    error_message = "Each profile capacity must satisfy: 0 <= minimum <= default <= maximum <= 1000."
+  }
+
+  validation {
+    condition = alltrue([
+      for p in var.profiles :
+      !(p.fixed_date != null && p.recurrence != null)
+    ])
+    error_message = "A profile may not have both fixed_date and recurrence set simultaneously."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for p in var.profiles : [
+        for r in coalesce(p.rules, []) :
+        contains(["Equals", "NotEquals", "GreaterThan", "GreaterThanOrEqual", "LessThan", "LessThanOrEqual"], r.metric_trigger.operator)
+      ]
+    ]))
+    error_message = "metric_trigger.operator must be one of: Equals, NotEquals, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for p in var.profiles : [
+        for r in coalesce(p.rules, []) :
+        contains(["Average", "Max", "Min", "Sum"], r.metric_trigger.statistic)
+      ]
+    ]))
+    error_message = "metric_trigger.statistic must be one of: Average, Max, Min, Sum."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for p in var.profiles : [
+        for r in coalesce(p.rules, []) :
+        contains(["Average", "Count", "Last", "Maximum", "Minimum", "Total"], r.metric_trigger.time_aggregation)
+      ]
+    ]))
+    error_message = "metric_trigger.time_aggregation must be one of: Average, Count, Last, Maximum, Minimum, Total."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for p in var.profiles : [
+        for r in coalesce(p.rules, []) :
+        contains(["Increase", "Decrease"], r.scale_action.direction)
+      ]
+    ]))
+    error_message = "scale_action.direction must be one of: Increase, Decrease."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for p in var.profiles : [
+        for r in coalesce(p.rules, []) :
+        contains(["ChangeCount", "ExactCount", "PercentChangeCount", "ServiceAllowedNextValue"], r.scale_action.type)
+      ]
+    ]))
+    error_message = "scale_action.type must be one of: ChangeCount, ExactCount, PercentChangeCount, ServiceAllowedNextValue."
+  }
 }
 
 variable "notification" {
@@ -153,8 +223,10 @@ variable "notification" {
 
 variable "predictive" {
   description = <<-EOT
-    Optional predictive autoscale configuration.
-    scale_mode      = The predictive scale mode (Disabled, Enabled, ForecastOnly).
+    Optional predictive autoscale configuration. Set to null (the default) to disable predictive autoscale.
+    NOTE: Predictive autoscale is only supported for Virtual Machine Scale Sets. Setting this for other
+    resource types (e.g. App Service Plans) will result in a 400 error from the Azure API.
+    scale_mode      = The predictive scale mode (Enabled or ForecastOnly).
     look_ahead_time = (Optional) The amount of time by which instances are launched in advance in ISO 8601 duration format (PT1M to PT1H).
   EOT
   type = object({
@@ -164,8 +236,8 @@ variable "predictive" {
   default = null
 
   validation {
-    condition     = var.predictive == null ? true : contains(["Disabled", "Enabled", "ForecastOnly"], var.predictive.scale_mode)
-    error_message = "predictive.scale_mode must be one of: Disabled, Enabled, ForecastOnly."
+    condition     = var.predictive == null ? true : contains(["Enabled", "ForecastOnly"], var.predictive.scale_mode)
+    error_message = "predictive.scale_mode must be one of: Enabled, ForecastOnly. To disable predictive autoscale, set predictive = null."
   }
 }
 

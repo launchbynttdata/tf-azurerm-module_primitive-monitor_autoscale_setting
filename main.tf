@@ -33,7 +33,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
         content {
           metric_trigger {
             metric_name              = rule.value.metric_trigger.metric_name
-            metric_resource_id       = rule.value.metric_trigger.metric_resource_id
+            metric_resource_id       = coalesce(rule.value.metric_trigger.metric_resource_id, var.target_resource_id)
             operator                 = rule.value.metric_trigger.operator
             statistic                = rule.value.metric_trigger.statistic
             time_aggregation         = rule.value.metric_trigger.time_aggregation

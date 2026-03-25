@@ -60,3 +60,11 @@ profiles = [
 tags = {
   env = "dev"
 }
+
+notification = {
+  email = {
+    custom_emails                         = ["test@example.com"]
+    send_to_subscription_administrator    = false
+    send_to_subscription_co_administrator = false
+  }
+}

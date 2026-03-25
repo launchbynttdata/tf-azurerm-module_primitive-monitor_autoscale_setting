@@ -33,5 +33,5 @@ func TestMonitorAutoscaleSettingModuleReadonly(t *testing.T) {
 		SetTestConfigFileName(infraTFVarFileNameDefault).
 		Build()
 
-	lib.RunSetupTestTeardown(t, *ctx, testimpl.TestComposableCompleteReadonly)
+	lib.RunNonDestructiveTest(t, *ctx, testimpl.TestComposableCompleteReadonly)
 }

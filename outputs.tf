@@ -19,3 +19,8 @@ output "name" {
   description = "The name of the AutoScale Setting."
   value       = azurerm_monitor_autoscale_setting.autoscale.name
 }
+
+output "target_resource_id" {
+  description = "The ARM resource ID of the target resource the AutoScale Setting is applied to."
+  value       = azurerm_monitor_autoscale_setting.autoscale.target_resource_id
+}
