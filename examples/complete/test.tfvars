@@ -1,8 +1,8 @@
 product_family     = "dso"
 product_service    = "mon"
 environment        = "dev"
-environment_number = "000"
-resource_number    = "000"
+environment_number = 0
+resource_number    = 0
 location           = "eastus"
 
 app_service_plan_os_type  = "Linux"
