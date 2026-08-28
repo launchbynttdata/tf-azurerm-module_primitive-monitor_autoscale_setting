@@ -19,10 +19,10 @@ func getAutoscaleSetting(t *testing.T, ctx types.TestContext) (armmonitor.Autosc
 	subscriptionID := os.Getenv("ARM_SUBSCRIPTION_ID")
 	require.NotEmpty(t, subscriptionID, "ARM_SUBSCRIPTION_ID must be set")
 
-	autoscaleName := terraform.Output(t, ctx.TerratestTerraformOptions(), "name")
+	autoscaleName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "name")
 	require.NotEmpty(t, autoscaleName, "name output must not be empty")
 
-	resourceGroupName := terraform.Output(t, ctx.TerratestTerraformOptions(), "resource_group_name")
+	resourceGroupName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "resource_group_name")
 	require.NotEmpty(t, resourceGroupName, "resource_group_name output must not be empty")
 
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
@@ -72,8 +72,8 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 		subscriptionID := os.Getenv("ARM_SUBSCRIPTION_ID")
 		require.NotEmpty(t, subscriptionID, "ARM_SUBSCRIPTION_ID must be set")
 
-		autoscaleName := terraform.Output(t, ctx.TerratestTerraformOptions(), "name")
-		resourceGroupName := terraform.Output(t, ctx.TerratestTerraformOptions(), "resource_group_name")
+		autoscaleName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "name")
+		resourceGroupName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "resource_group_name")
 
 		cred, err := azidentity.NewDefaultAzureCredential(nil)
 		require.NoError(t, err)

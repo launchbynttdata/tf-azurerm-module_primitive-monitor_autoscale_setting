@@ -34,7 +34,7 @@ Reference architecture modules compose multiple primitive modules to implement c
 
 **Repository naming:** `tf-<provider>-module_reference-<architecture>`
 
-**Examples:** 
+**Examples:**
 - `tf-azurerm-module_reference-postgresql_server`
 - `tf-aws-module_reference-lambda_function`
 - `tf-google-module_reference-gke_cluster`
@@ -207,7 +207,7 @@ module "postgresql_server" {
   sku_name                      = var.sku_name
   postgres_version              = var.postgres_version
   storage_mb                    = var.storage_mb
-  
+
   # Networking
   delegated_subnet_id           = var.delegated_subnet_id
   private_dns_zone_id           = var.private_dns_zone_id
@@ -229,11 +229,11 @@ module "s3_bucket" {
   version = "~> 1.0"
 
   bucket = module.resource_names["s3_bucket"].minimal_random_suffix  # S3 bucket names are globally unique
-  
+
   # Pass through configuration
   versioning_enabled = var.versioning_enabled
   encryption_enabled = var.encryption_enabled
-  
+
   tags = var.tags
 }
 ```
@@ -250,9 +250,9 @@ module "lambda_function" {
   description   = var.description
   handler       = var.handler
   runtime       = var.runtime
-  
+
   # ... extensive configuration
-  
+
   tags = var.tags
 }
 ```
@@ -319,7 +319,7 @@ module "lambda_iam_role" {
 
   name               = module.resource_names["iam_role"].standard
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
-  
+
   tags = var.tags
 }
 ```
@@ -462,7 +462,7 @@ variable "resource_names_map" {
     name       = string
     max_length = optional(number, 60)
   }))
-  
+
   # Azure example
   default = {
     resource_group = {
@@ -478,7 +478,7 @@ variable "resource_names_map" {
       max_length = 80
     }
   }
-  
+
   # AWS example
   # default = {
   #   lambda_function = {
@@ -934,7 +934,7 @@ locals {
 module "lambda_function" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "~> 7.4"
-  
+
   # Extensive configuration options
   # Well-maintained, widely used
 }
