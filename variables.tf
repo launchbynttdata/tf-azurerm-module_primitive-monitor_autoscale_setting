@@ -237,7 +237,7 @@ variable "predictive" {
 
   validation {
     condition     = var.predictive == null ? true : contains(["Enabled", "ForecastOnly"], var.predictive.scale_mode)
-    error_message = "The predictive.scale_mode must be one of: Enabled, ForecastOnly. To disable predictive autoscale, set predictive = null."
+    error_message = "predictive.scale_mode must be one of: Enabled, ForecastOnly. To disable predictive autoscale, set predictive = null."
   }
 }
 
